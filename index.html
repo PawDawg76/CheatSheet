@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Science Code Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .selection-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-panel {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .language-toggle {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 25px;
+            gap: 5px;
+        }
+
+        .language-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .language-btn.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown:hover {
+            border-color: #3498db;
+        }
+
+        .dropdown:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #code-title {
+            color: #87CEEB; /* Brighter Sky Blue */
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #f8f8f2;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .placeholder {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Data Science Code Generator</h1>
+            <p>Generate Python or R code for any data science task</p>
+        </div>
+
+        <div class="main-content">
+            <div class="selection-panel" id="selection-panel">
+                <div class="language-toggle">
+                    <button class="language-btn active" data-lang="Python">🐍 Python</button>
+                    <button class="language-btn" data-lang="R">📊 R</button>
+                </div>
+                <!-- Sections will be dynamically generated here -->
+            </div>
+
+            <div class="code-panel">
+                <div class="code-header">
+                    <h2 id="code-title">Generated Code</h2>
+                    <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
+                </div>
+                <pre class="code-block"><code id="codeOutput" class="language-python"><div class="placeholder">Select a task from the left panel to generate code examples.</div></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentLanguage = 'Python';
+            const selectionPanel = document.getElementById('selection-panel');
+            const languageBtns = document.querySelectorAll('.language-btn');
+
+            // Dynamically create sections and dropdowns from data.js
+            for (const [category, tasks] of Object.entries(categories)) {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+
+                const title = document.createElement('h3');
+                title.textContent = category;
+                sectionDiv.appendChild(title);
+
+                const dropdown = document.createElement('select');
+                dropdown.className = 'dropdown';
+                dropdown.dataset.category = category;
+
+                const defaultOption = document.createElement('option');
+                defaultOption.textContent = 'Select a task...';
+                defaultOption.value = '';
+                dropdown.appendChild(defaultOption);
+
+                tasks.forEach(task => {
+                    const option = document.createElement('option');
+                    option.textContent = task;
+                    option.value = task;
+                    dropdown.appendChild(option);
+                });
+
+                sectionDiv.appendChild(dropdown);
+                selectionPanel.appendChild(sectionDiv);
+            }
+
+            const allDropdowns = document.querySelectorAll('.dropdown');
+
+            function generateCode(task) {
+                const codeOutput = document.getElementById('codeOutput');
+                const codeTitle = document.getElementById('code-title');
+                const template = codeTemplates[task]?.[currentLanguage];
+
+                // Always clear previous content
+                codeOutput.innerHTML = '';
+
+                if (template) {
+                    codeTitle.textContent = `${task} - ${currentLanguage}`;
+                    codeOutput.className = `language-${currentLanguage.toLowerCase()}`;
+                    // Use createTextNode for safety and to preserve whitespace correctly within <pre>
+                    codeOutput.appendChild(document.createTextNode(template));
+                } else {
+                    codeTitle.textContent = 'Generated Code';
+                    codeOutput.className = 'language-python';
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder';
+                    placeholder.textContent = `Code template for \"${task}\" in ${currentLanguage} is not available yet.`;
+                    codeOutput.appendChild(placeholder);
+                }
+            }
+
+            function resetCodeOutput() {
+                const codeOutput = document.getElementById('codeOutput');
+                const codeTitle = document.getElementById('code-title');
+                
+                codeOutput.innerHTML = '';
+                codeTitle.textContent = 'Generated Code';
+                codeOutput.className = 'language-python';
+                
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder';
+                placeholder.textContent = 'Select a task from the left panel to generate code examples.';
+                codeOutput.appendChild(placeholder);
+            }
+
+            languageBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    languageBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentLanguage = this.dataset.lang;
+                    
+                    const activeDropdown = Array.from(allDropdowns).find(dropdown => dropdown.value !== '');
+                    if (activeDropdown) {
+                        generateCode(activeDropdown.value);
+                    }
+                });
+            });
+
+            allDropdowns.forEach(dropdown => {
+                dropdown.addEventListener('change', function() {
+                    if (this.value) {
+                        allDropdowns.forEach(d => {
+                            if (d !== this) d.selectedIndex = 0;
+                        });
+                        generateCode(this.value);
+                    } else {
+                        resetCodeOutput();
+                    }
+                });
+            });
+        });
+
+        function copyCode() {
+            const codeBlock = document.getElementById('codeOutput');
+            const code = codeBlock.textContent || codeBlock.innerText;
+            
+            navigator.clipboard.writeText(code).then(function() {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copied!';
+                copyBtn.style.backgroundColor = '#2ecc71';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.backgroundColor = '#27ae60';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Could not copy code. Please select and copy manually.');
+            });
+        }
+    </script>
+</body>
+</html>
